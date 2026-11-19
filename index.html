@@ -295,6 +295,10 @@ bdi { unicode-bidi: isolate; }
 .examples { display: flex; flex-wrap: wrap; gap: 6px; }
 .examples button { border: 1px solid var(--g3); background: #fff; border-radius: 99px; padding: 5px 12px 6px; font-size: 13.5px; font-weight: 600; }
 .examples button:hover { border-color: #000; }
+.startrow { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+.trybtn { border: 1.5px solid #000; line-height: 1.15; text-align: center; background: #fff; border-radius: 16px; padding: 10px 12px; display: grid; justify-items: center; align-content: center; gap: 3px; font-weight: 800; font-size: 13.5px; width: 92px; }
+.trybtn:hover { background: #000; color: #fff; }
+.trybtn .ic { width: 24px; height: 24px; color: var(--mag); }
 .pastebtn { width: 100%; border: 0; border-radius: 16px; background: #000; color: #fff; padding: 14px 16px; display: flex; align-items: center; gap: 12px; text-align: start; }
 .pastebtn:hover { background: #222; }
 .pastebtn .ic { width: 26px; height: 26px; color: var(--mag); }
@@ -306,6 +310,12 @@ bdi { unicode-bidi: isolate; }
 .pd-head b { display: block; font-size: 22px; font-weight: 800; }
 .pd-head span { display: block; color: var(--g5); font-size: 14px; }
 .pd-head .x { margin-inline-start: auto; width: 36px; height: 36px; border: 0; border-radius: 10px; background: var(--g1); font-size: 20px; line-height: 1; }
+.pd-samples { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 0 24px 12px; font-size: 13.5px; color: var(--g5); }
+.pd-samples button { border: 1px solid var(--g3); background: #fff; border-radius: 99px; padding: 4px 12px 5px; font-size: 13.5px; font-weight: 600; }
+.pd-samples button:hover { border-color: #000; }
+.pd-samples button[aria-pressed="true"] { background: #000; color: #fff; border-color: #000; }
+.pd-row.in { animation: rowin .35s ease both; }
+@keyframes rowin { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: none; } }
 .pd-body { display: grid; grid-template-columns: 1.1fr 1fr; gap: 18px; padding: 0 24px; min-height: 0; }
 .pd-body textarea { width: 100%; min-height: 380px; height: 100%; resize: none; border: 1.5px solid var(--g2); border-radius: 16px; padding: 14px 16px; font: 400 15px/1.55 var(--ui); background: var(--g1); }
 .pd-body textarea:focus { outline: none; border-color: #000; background: #fff; }
@@ -411,7 +421,10 @@ bdi { unicode-bidi: isolate; }
 
 <aside class="panel">
   <div class="head"><span class="sym" aria-hidden="true"></span><b>סטודיו פירמה</b></div>
+  <div class="startrow">
   <button class="pastebtn" id="pasteOpen"><svg class="ic" viewBox="0 0 24 24"><rect x="6" y="4" width="12" height="17" rx="2.5"/><path d="M9 4.5V3.5h6v1M9 10h6M9 13.5h6M9 17h4"/></svg><span><b>הדבקת תוכן</b><small>הדביקו טקסט, והסטודיו יסדר אותו בתבנית מתאימה</small></span></button>
+  <button class="trybtn" id="tryOpen" title="לראות איך טקסט מודבק הופך לעיצוב"><svg class="ic" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>נסו עם דוגמה</button>
+  </div>
   <div class="row"><h3>גודל</h3><div class="sizes" id="sizes"></div></div>
   <div class="row"><h3>תבנית</h3><div class="layouts" id="layouts"></div></div>
   <div class="row"><h3>צבעים</h3><div class="themes" id="themes"></div></div>
@@ -444,6 +457,7 @@ bdi { unicode-bidi: isolate; }
 <div class="pd" id="pd" hidden role="dialog" aria-modal="true" aria-labelledby="pdTitle">
   <div class="pd-card">
     <div class="pd-head"><div><b id="pdTitle">הדבקת תוכן</b><span>הדביקו את הטקסט כמו שהוא, בלי לסדר. כותרת, פרטים, תוכנייה, נתונים או פסקאות: הסטודיו יזהה הכל לבד.</span></div><button class="x" id="pdClose" aria-label="סגירה">×</button></div>
+    <div class="pd-samples" id="pdSamples"><span>או נסו דוגמה:</span><button data-s="short">טקסט קצר</button><button data-s="medium">טקסט בינוני</button><button data-s="long">טקסט ארוך</button></div>
     <div class="pd-body">
       <textarea id="pdText" spellcheck="false" placeholder="למשל:
 
@@ -1180,9 +1194,10 @@ bdi { unicode-bidi: isolate; }
     });
     return best.id;
   }
+  const SAMPLES = {"short": "מפגש פתוח\nמובילים שינוי בעולם משתנה", "medium": "סדנת מותג למנהלות ומנהלים\nאיך הופכים רעיון אחד לשפה של כל הארגון\n\nיום רביעי, 14 בינואר 2027\n09:00 עד 13:00\nמשרדי פירמה, תל אביב\n\n• איך מגדירים רעיון מרכזי\n• איך מודדים שהשינוי קורה\n\nלהרשמה\nfirmabrands.com", "long": "הזמנה\nכנס השיפטים 2027\nיום שלם של שיחות על מותג, מוצר, תרבות ושירות\n\nהשנה האחרונה הוכיחה שארגונים שמובילים שינוי לא מחכים לרגע הנכון. הם יוצרים אותו. בכנס נפגוש מנהלות ומנהלים שעשו את הצעד, ונשמע מה עבד, מה לא, ומה הם היו עושים אחרת.\n\nיום שלישי, 9 במרץ 2027\n08:30 עד 17:00\nמרכז הכנסים, תל אביב\n\nפתיחה:\nנועה בן ארי, מנכ\"לית פירמה\nמותג:\nיואב כהן, איך בונים מותג שמוביל שינוי\nמיכל לוי, שפה אחת לכל הארגון\nמוצר:\nדן אורן, מוצר שמדבר עם המשתמשים\nרותם שגיא, ממחקר להחלטה תוך שבוע\nתרבות:\nשירה אדלר, תרבות ארגונית בזמן שינוי\nעמית נחום, להוביל צוותים בלי לחכות לוודאות\nסיכום:\nנועה בן ארי ויואב כהן, מה לוקחים מכאן הלאה\n\nההשתתפות ללא תשלום, בהרשמה מראש. מספר המקומות מוגבל.\n\nלהרשמה\nfirmabrands.com/shifts"};
   const pd = $("#pd"), pdText = $("#pdText");
   let parsed = null;
-  function readPaste() {
+  function readPaste(animate) {
     parsed = parseContent(pdText.value);
     const list = parsed.blocks;
     $("#pdGo").disabled = !list.length;
@@ -1190,7 +1205,7 @@ bdi { unicode-bidi: isolate; }
     $("#pdKind").hidden = !list.length; $("#pdKind").textContent = "סוג התוכן: " + kindName;
     const col = { tag: ["#FF0354", "#fff"], title: ["#000", "#fff"], sub: ["#5D5C5A", "#fff"], body: ["#E8E7E5", "#000"], bold: ["#C9C9C4", "#000"], list: ["#E8E7E5", "#000"], section: ["#FFE0EA", "#B0003A"], item: ["#F4F4F2", "#000"], stat: ["#3460F6", "#fff"], cta: ["#000", "#FF0354"], small: ["#F4F4F2", "#5D5C5A"] };
     $("#pdRead").innerHTML = list.length
-      ? list.map(b => `<div class="pd-row"><span class="tchip" style="background:${col[b.type][0]};color:${col[b.type][1]}">${TYPES[b.type].name}</span><span class="tx">${esc(b.text)}</span></div>`).join("") + (parsed.link ? `<div class="pd-row"><span class="tchip" style="background:#fff;color:#000;border:1px solid #C9C9C4">כתובת אתר</span><span class="tx" dir="ltr">${esc(parsed.link)}</span></div>` : "")
+      ? list.map((b, i) => `<div class="pd-row${animate ? " in" : ""}" style="${animate ? `animation-delay:${i * 70}ms` : ""}"><span class="tchip" style="background:${col[b.type][0]};color:${col[b.type][1]}">${TYPES[b.type].name}</span><span class="tx">${esc(b.text)}</span></div>`).join("") + (parsed.link ? `<div class="pd-row"><span class="tchip" style="background:#fff;color:#000;border:1px solid #C9C9C4">כתובת אתר</span><span class="tx" dir="ltr">${esc(parsed.link)}</span></div>` : "")
       : `<div class="pd-empty">הדביקו טקסט משמאל, ויופיע כאן איך כל שורה זוהתה: כותרת, פרטים, תוכנייה, נתונים, כפתור…<br>אפשר להדביק ממייל, מוורד או מוואטסאפ.</div>`;
   }
   function openPaste(text) {
@@ -1199,6 +1214,14 @@ bdi { unicode-bidi: isolate; }
     readPaste(); setTimeout(() => pdText.focus(), 0);
   }
   const closePaste = () => { pd.hidden = true; };
+  function useSample(k) {
+    pdText.value = SAMPLES[k]; readPaste(true);
+    $$("#pdSamples button").forEach(b => b.setAttribute("aria-pressed", b.dataset.s === k));
+    $("#pdRead").scrollTop = 0; pdText.scrollTop = 0;
+  }
+  $("#pdSamples").addEventListener("click", e => { const b = e.target.closest("button[data-s]"); if (b) useSample(b.dataset.s); });
+  pdText.addEventListener("input", () => $$("#pdSamples button").forEach(b => b.setAttribute("aria-pressed", false)));
+  $("#tryOpen").addEventListener("click", () => { openPaste(""); useSample("medium"); setTimeout(() => $("#pdGo").focus(), 0); });
   $("#pasteOpen").addEventListener("click", () => openPaste());
   $("#pdClose").addEventListener("click", closePaste);
   $("#pdCancel").addEventListener("click", closePaste);
